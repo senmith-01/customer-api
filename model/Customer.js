@@ -1,5 +1,19 @@
-let customers = [];
-let nextId = 1;
+const fs = require('fs').promises;
+const path = require('path');
+const dataFile = path.join(__dirname, '../data/customers.json');
+
+async function readData() {
+    try {
+        const data = await fs.readFile(dataFile, 'utf-8');
+        return JSON.parse(data);
+    } catch (err) {
+        return [];
+    }
+}
+
+async function writeData(customers) {
+    await fs.writeFile(dataFile, JSON.stringify(customers, null, 2));
+}
 
 class Customer {
     constructor(name, address, salary) {
@@ -9,36 +23,48 @@ class Customer {
         this.salary = salary;
     }
 
-    static create(data) {
-        const customer = new Customer(data.name, data.address, data.salary);
-        customers.push(customer);
-        return customer;
+    static async create(data) {
+        let customers = await readData();
+        const newCustomer = {
+            id: customers.length ? customers[customers.length - 1].id + 1 : 1,
+            name: data.name,
+            address: data.address,
+            salary: data.salary
+        }
+        customers.push(newCustomer);
+        await writeData(customers);
+        return newCustomer;
     }
 
-    static findAll() {
-        return customers;
+    static async findAll() {
+        return await readData();
     }
 
-    static findById(id) {
+    static async findById(id) {
+        let customers = await readData();
         return customers.find(c => c.id === id);
     }
 
-    static update(id, data) {
-        let selectedCustomer = this.findById(id);
-        if (selectedCustomer) {
-            selectedCustomer.name = data.name ?? selectedCustomer.name;
-            selectedCustomer.address = data.address ?? selectedCustomer.address;
-            selectedCustomer.salary = data.salary ?? selectedCustomer.salary;
+    static async update(id, data) {
+        let customers = await readData();
+        let selectedIndex = customers.findIndex(c => c.id === id);
+        if (selectedIndex === -1) {
+            return null;
         }
-        return selectedCustomer;
+        customers[selectedIndex] = { ...customers[selectedIndex], ...data };
+        await writeData(customers);
+        return customers[selectedIndex];
     }
 
-    static delete(id) {
+    static async delete(id) {
+        let customers = await readData();
         let selectedIndex = customers.findIndex(c => c.id === id);
-        if (selectedIndex !== -1) {
-            return customers.splice(selectedIndex, 1)[0];
+        if (selectedIndex === -1) {
+            return null;
         }
-        return null;
+        const deletedData = customers.splice(selectedIndex, 1)[0];
+        await writeData(customers);
+        return deletedData;
     }
 }
 
