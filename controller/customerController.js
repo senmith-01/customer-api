@@ -17,7 +17,7 @@ const createNewCustomer = (req, resp) => {
 
 const updateCustomer = (req, resp) => {
     let id = parseInt(req.params.id);
-    let updatedCustomer = Customer, update(id, resp.body);
+    let updatedCustomer = Customer.update(id, req.body);
     if (!updatedCustomer) return resp.status(404).json({ message: 'Customer not found' })
     resp.status(201).json(updatedCustomer);
 };
@@ -26,7 +26,7 @@ const deleteCustomer = (req, resp) => {
     let id = parseInt(req.params.id);
     let deletedCustomer = Customer.delete(id);
     if (!deletedCustomer) return resp.status(404).json({ message: 'Customer not found' });
-    resp.status(204).json({ message });
+    resp.status(204).json({ message: 'Customer deleted' });
 };
 
 module.exports = {
