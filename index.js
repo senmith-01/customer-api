@@ -1,15 +1,15 @@
-const express= require('express');
+const express = require('express');
 require('dotenv').config();
 
-const app=express();
+const app = express();
 app.use(express.json());
 
-const PORT =process.env.SERVER_PORT | 3000;   
+const PORT = process.env.SERVER_PORT | 3000;
 
-app.get('/', (req,resp)=> {
-    resp.status(200).json({"message":"Connected..."})
+app.get('/', (req, resp) => {
+    resp.status(200).json({ "message": "Connected..." })
 })
 
-app.listen(PORT, ()=>{
+app.listen(PORT, () => {
     console.log(`Server Started and Running on port ${PORT}`)
 })
